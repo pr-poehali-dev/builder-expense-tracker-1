@@ -37,6 +37,18 @@ interface Photo {
   description?: string;
 }
 
+interface Employee {
+  id: string;
+  name: string;
+  role: string;
+  email: string;
+  phone: string;
+  projects: string[];
+  status: 'active' | 'inactive';
+  joinDate: string;
+  avatar?: string;
+}
+
 interface Stage {
   id: string;
   name: string;
@@ -192,6 +204,41 @@ const Index = () => {
   ]);
 
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [employees, setEmployees] = useState<Employee[]>([
+    {
+      id: 'e1',
+      name: 'Иванов Иван',
+      role: 'Прораб',
+      email: 'ivanov@example.com',
+      phone: '+7 (999) 123-45-67',
+      projects: ['1'],
+      status: 'active',
+      joinDate: '2024-01-15',
+      avatar: '👷'
+    },
+    {
+      id: 'e2',
+      name: 'Петров Петр',
+      role: 'Электрик',
+      email: 'petrov@example.com',
+      phone: '+7 (999) 234-56-78',
+      projects: ['1'],
+      status: 'active',
+      joinDate: '2024-03-20',
+      avatar: '⚡'
+    },
+    {
+      id: 'e3',
+      name: 'Сидоров Сергей',
+      role: 'Сантехник',
+      email: 'sidorov@example.com',
+      phone: '+7 (999) 345-67-89',
+      projects: ['1', '2'],
+      status: 'active',
+      joinDate: '2024-02-10',
+      avatar: '🔧'
+    },
+  ]);
 
   const totalBudget = projects.reduce((sum, p) => sum + p.totalBudget, 0);
   const totalSpent = projects.reduce((sum, p) => sum + p.totalSpent, 0);
@@ -237,6 +284,10 @@ const Index = () => {
                 <Icon name="Download" size={16} className="mr-2" />
                 Отчёт
               </Button>
+              <Button variant="ghost" size="sm" onClick={() => setActiveTab('profile')}>
+                <Icon name="User" size={16} className="mr-2" />
+                Профиль
+              </Button>
               <Button size="sm" className="bg-gradient-to-r from-primary to-secondary">
                 <Icon name="Plus" size={16} className="mr-2" />
                 Новый объект
@@ -248,7 +299,7 @@ const Index = () => {
 
       <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full max-w-2xl grid-cols-5 mx-auto">
+          <TabsList className="grid w-full max-w-3xl grid-cols-6 mx-auto">
             <TabsTrigger value="dashboard" className="gap-2">
               <Icon name="LayoutDashboard" size={16} />
               Дашборд
@@ -265,9 +316,13 @@ const Index = () => {
               <Icon name="FileBarChart" size={16} />
               Отчеты
             </TabsTrigger>
-            <TabsTrigger value="archive" className="gap-2">
-              <Icon name="Archive" size={16} />
-              Архив
+            <TabsTrigger value="employees" className="gap-2">
+              <Icon name="Users" size={16} />
+              Сотрудники
+            </TabsTrigger>
+            <TabsTrigger value="profile" className="gap-2">
+              <Icon name="User" size={16} />
+              Профиль
             </TabsTrigger>
           </TabsList>
 
@@ -954,32 +1009,140 @@ const Index = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="archive" className="space-y-6 animate-fade-in">
+          <TabsContent value="employees" className="space-y-6 animate-fade-in">
             <Card>
               <CardHeader>
-                <CardTitle>Архив объектов</CardTitle>
-                <CardDescription>Завершённые проекты</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Сотрудники</CardTitle>
+                    <CardDescription>Управление командой</CardDescription>
+                  </div>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button className="bg-gradient-to-r from-primary to-secondary">
+                        <Icon name="UserPlus" size={16} className="mr-2" />
+                        Добавить сотрудника
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl">
+                      <DialogHeader>
+                        <DialogTitle>Новый сотрудник</DialogTitle>
+                        <DialogDescription>Добавьте сотрудника в команду</DialogDescription>
+                      </DialogHeader>
+                      <div className="grid gap-4 py-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="grid gap-2">
+                            <Label htmlFor="emp-name">ФИО</Label>
+                            <Input id="emp-name" placeholder="Иванов Иван Иванович" />
+                          </div>
+                          <div className="grid gap-2">
+                            <Label htmlFor="emp-role">Должность</Label>
+                            <Select>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Выберите должность" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="manager">Прораб</SelectItem>
+                                <SelectItem value="electrician">Электрик</SelectItem>
+                                <SelectItem value="plumber">Сантехник</SelectItem>
+                                <SelectItem value="builder">Строитель</SelectItem>
+                                <SelectItem value="finisher">Отделочник</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="grid gap-2">
+                            <Label htmlFor="emp-email">Email</Label>
+                            <Input id="emp-email" type="email" placeholder="email@example.com" />
+                          </div>
+                          <div className="grid gap-2">
+                            <Label htmlFor="emp-phone">Телефон</Label>
+                            <Input id="emp-phone" placeholder="+7 (999) 123-45-67" />
+                          </div>
+                        </div>
+                        <div className="grid gap-2">
+                          <Label htmlFor="emp-projects">Назначить на объекты</Label>
+                          <Select>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Выберите объекты" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {projects.map((project) => (
+                                <SelectItem key={project.id} value={project.id}>
+                                  {project.address}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <Button className="w-full">Добавить сотрудника</Button>
+                    </DialogContent>
+                  </Dialog>
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {projects.filter(p => p.status === 'completed').map((project) => (
-                    <Card key={project.id} className="hover:shadow-md transition-all">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center">
-                              <Icon name="CheckCircle2" size={20} className="text-success" />
-                            </div>
-                            <div>
-                              <h3 className="font-semibold">{project.address}</h3>
-                              <p className="text-sm text-muted-foreground">
-                                Завершён • {((project.totalSpent / project.totalBudget) * 100).toFixed(0)}% от бюджета
-                              </p>
-                            </div>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {employees.map((employee) => (
+                    <Card key={employee.id} className="hover:shadow-lg transition-all animate-scale-in">
+                      <CardContent className="p-6">
+                        <div className="flex items-start gap-4 mb-4">
+                          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-3xl">
+                            {employee.avatar}
                           </div>
-                          <Button variant="outline" size="sm">
-                            <Icon name="Eye" size={14} className="mr-1" />
-                            Посмотреть
+                          <div className="flex-1">
+                            <h3 className="font-bold text-lg">{employee.name}</h3>
+                            <p className="text-sm text-muted-foreground">{employee.role}</p>
+                            <Badge className={employee.status === 'active' ? 'bg-success mt-2' : 'bg-muted mt-2'}>
+                              {employee.status === 'active' ? 'Активен' : 'Неактивен'}
+                            </Badge>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-2 text-sm">
+                          <div className="flex items-center gap-2">
+                            <Icon name="Mail" size={14} className="text-muted-foreground" />
+                            <span className="text-muted-foreground">{employee.email}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Icon name="Phone" size={14} className="text-muted-foreground" />
+                            <span className="text-muted-foreground">{employee.phone}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Icon name="Calendar" size={14} className="text-muted-foreground" />
+                            <span className="text-muted-foreground">
+                              С {new Date(employee.joinDate).toLocaleDateString('ru')}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="mt-4 pt-4 border-t">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-semibold">Объекты</span>
+                            <Badge variant="outline">{employee.projects.length}</Badge>
+                          </div>
+                          <div className="space-y-1">
+                            {employee.projects.map((projectId) => {
+                              const project = projects.find(p => p.id === projectId);
+                              return project ? (
+                                <div key={projectId} className="text-xs text-muted-foreground flex items-center gap-1">
+                                  <Icon name="Building2" size={12} />
+                                  {project.address}
+                                </div>
+                              ) : null;
+                            })}
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2 mt-4">
+                          <Button variant="outline" size="sm" className="flex-1">
+                            <Icon name="Edit" size={14} className="mr-1" />
+                            Изменить
+                          </Button>
+                          <Button variant="outline" size="sm" className="flex-1">
+                            <Icon name="Trash2" size={14} className="mr-1" />
+                            Удалить
                           </Button>
                         </div>
                       </CardContent>
@@ -988,6 +1151,130 @@ const Index = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="profile" className="space-y-6 animate-fade-in">
+            <div className="grid gap-6 md:grid-cols-3">
+              <Card className="md:col-span-1">
+                <CardHeader>
+                  <CardTitle>Профиль</CardTitle>
+                  <CardDescription>Личная информация</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-6xl">
+                      👨‍💼
+                    </div>
+                    <div className="text-center">
+                      <h3 className="text-xl font-bold">Александр Петров</h3>
+                      <p className="text-sm text-muted-foreground">Руководитель</p>
+                      <Badge className="mt-2 bg-success">Администратор</Badge>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 pt-4 border-t">
+                    <div className="flex items-center gap-3">
+                      <Icon name="Mail" size={18} className="text-muted-foreground" />
+                      <span className="text-sm">petrov@stroykontrol.ru</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Icon name="Phone" size={18} className="text-muted-foreground" />
+                      <span className="text-sm">+7 (999) 000-11-22</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Icon name="MapPin" size={18} className="text-muted-foreground" />
+                      <span className="text-sm">г. Москва</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Icon name="Calendar" size={18} className="text-muted-foreground" />
+                      <span className="text-sm">В компании с 2020 года</span>
+                    </div>
+                  </div>
+
+                  <Button className="w-full" variant="outline">
+                    <Icon name="Edit" size={16} className="mr-2" />
+                    Редактировать профиль
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="md:col-span-2">
+                <CardHeader>
+                  <CardTitle>Статистика</CardTitle>
+                  <CardDescription>Ваша активность в системе</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 rounded-lg border bg-card">
+                      <div className="flex items-center justify-between mb-2">
+                        <Icon name="Building2" size={24} className="text-primary" />
+                        <Badge>{projects.length}</Badge>
+                      </div>
+                      <p className="text-2xl font-bold">{projects.filter(p => p.status === 'active').length}</p>
+                      <p className="text-sm text-muted-foreground">Активных объектов</p>
+                    </div>
+                    <div className="p-4 rounded-lg border bg-card">
+                      <div className="flex items-center justify-between mb-2">
+                        <Icon name="Users" size={24} className="text-success" />
+                        <Badge>{employees.length}</Badge>
+                      </div>
+                      <p className="text-2xl font-bold">{employees.filter(e => e.status === 'active').length}</p>
+                      <p className="text-sm text-muted-foreground">Активных сотрудников</p>
+                    </div>
+                    <div className="p-4 rounded-lg border bg-card">
+                      <div className="flex items-center justify-between mb-2">
+                        <Icon name="Wallet" size={24} className="text-warning" />
+                      </div>
+                      <p className="text-2xl font-bold">{(totalBudget / 1000000).toFixed(1)}М</p>
+                      <p className="text-sm text-muted-foreground">Общий бюджет</p>
+                    </div>
+                    <div className="p-4 rounded-lg border bg-card">
+                      <div className="flex items-center justify-between mb-2">
+                        <Icon name="TrendingUp" size={24} className="text-destructive" />
+                      </div>
+                      <p className="text-2xl font-bold">{(totalSpent / 1000000).toFixed(1)}М</p>
+                      <p className="text-sm text-muted-foreground">Израсходовано</p>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t">
+                    <h4 className="font-semibold mb-4">Настройки аккаунта</h4>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between p-3 rounded-lg border">
+                        <div className="flex items-center gap-3">
+                          <Icon name="Bell" size={18} className="text-muted-foreground" />
+                          <div>
+                            <p className="font-medium text-sm">Уведомления</p>
+                            <p className="text-xs text-muted-foreground">Получать оповещения о событиях</p>
+                          </div>
+                        </div>
+                        <Button variant="outline" size="sm">Включено</Button>
+                      </div>
+                      <div className="flex items-center justify-between p-3 rounded-lg border">
+                        <div className="flex items-center gap-3">
+                          <Icon name="Lock" size={18} className="text-muted-foreground" />
+                          <div>
+                            <p className="font-medium text-sm">Безопасность</p>
+                            <p className="text-xs text-muted-foreground">Изменить пароль</p>
+                          </div>
+                        </div>
+                        <Button variant="outline" size="sm">Настроить</Button>
+                      </div>
+                      <div className="flex items-center justify-between p-3 rounded-lg border">
+                        <div className="flex items-center gap-3">
+                          <Icon name="Download" size={18} className="text-muted-foreground" />
+                          <div>
+                            <p className="font-medium text-sm">Экспорт данных</p>
+                            <p className="text-xs text-muted-foreground">Скачать все данные</p>
+                          </div>
+                        </div>
+                        <Button variant="outline" size="sm">Скачать</Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
