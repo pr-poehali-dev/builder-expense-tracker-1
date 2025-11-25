@@ -23,12 +23,28 @@ interface Transaction {
   receipt?: string;
 }
 
+interface Comment {
+  id: string;
+  text: string;
+  date: string;
+  author: string;
+}
+
+interface Photo {
+  id: string;
+  url: string;
+  date: string;
+  description?: string;
+}
+
 interface Stage {
   id: string;
   name: string;
   budget: number;
   spent: number;
   status: 'not-started' | 'in-progress' | 'completed';
+  comments: Comment[];
+  photos: Photo[];
 }
 
 interface Project {
@@ -40,6 +56,8 @@ interface Project {
   stages: Stage[];
   status: 'active' | 'completed' | 'archived';
   startDate: string;
+  comments: Comment[];
+  photos: Photo[];
 }
 
 const Index = () => {
@@ -52,11 +70,54 @@ const Index = () => {
       totalIncome: 1500000,
       status: 'active',
       startDate: '2024-01-15',
+      comments: [
+        { id: 'c1', text: 'Заказчик просит использовать немецкую сантехнику', date: '2024-11-10', author: 'Иванов И.' },
+        { id: 'c2', text: 'Согласован выезд электрика на субботу', date: '2024-11-15', author: 'Петров П.' }
+      ],
+      photos: [
+        { id: 'p1', url: '/placeholder.svg', date: '2024-11-01', description: 'Общий вид объекта' }
+      ],
       stages: [
-        { id: 's1', name: 'Демонтаж', budget: 200000, spent: 180000, status: 'completed' },
-        { id: 's2', name: 'Электрика', budget: 800000, spent: 650000, status: 'in-progress' },
-        { id: 's3', name: 'Сантехника', budget: 600000, spent: 420000, status: 'in-progress' },
-        { id: 's4', name: 'Отделка', budget: 1500000, spent: 0, status: 'not-started' },
+        { 
+          id: 's1', 
+          name: 'Демонтаж', 
+          budget: 200000, 
+          spent: 180000, 
+          status: 'completed',
+          comments: [
+            { id: 'sc1', text: 'Работы завершены в срок', date: '2024-10-20', author: 'Сидоров С.' }
+          ],
+          photos: [
+            { id: 'sp1', url: '/placeholder.svg', date: '2024-10-20', description: 'Демонтаж завершен' }
+          ]
+        },
+        { 
+          id: 's2', 
+          name: 'Электрика', 
+          budget: 800000, 
+          spent: 650000, 
+          status: 'in-progress',
+          comments: [],
+          photos: []
+        },
+        { 
+          id: 's3', 
+          name: 'Сантехника', 
+          budget: 600000, 
+          spent: 420000, 
+          status: 'in-progress',
+          comments: [],
+          photos: []
+        },
+        { 
+          id: 's4', 
+          name: 'Отделка', 
+          budget: 1500000, 
+          spent: 0, 
+          status: 'not-started',
+          comments: [],
+          photos: []
+        },
       ]
     },
     {
@@ -67,9 +128,27 @@ const Index = () => {
       totalIncome: 800000,
       status: 'active',
       startDate: '2024-02-20',
+      comments: [],
+      photos: [],
       stages: [
-        { id: 's5', name: 'Фундамент', budget: 1000000, spent: 950000, status: 'completed' },
-        { id: 's6', name: 'Стены', budget: 1500000, spent: 250000, status: 'in-progress' },
+        { 
+          id: 's5', 
+          name: 'Фундамент', 
+          budget: 1000000, 
+          spent: 950000, 
+          status: 'completed',
+          comments: [],
+          photos: []
+        },
+        { 
+          id: 's6', 
+          name: 'Стены', 
+          budget: 1500000, 
+          spent: 250000, 
+          status: 'in-progress',
+          comments: [],
+          photos: []
+        },
       ]
     },
     {
@@ -80,9 +159,27 @@ const Index = () => {
       totalIncome: 2800000,
       status: 'completed',
       startDate: '2023-09-10',
+      comments: [],
+      photos: [],
       stages: [
-        { id: 's7', name: 'Ремонт фасада', budget: 1500000, spent: 1480000, status: 'completed' },
-        { id: 's8', name: 'Кровля', budget: 1300000, spent: 1270000, status: 'completed' },
+        { 
+          id: 's7', 
+          name: 'Ремонт фасада', 
+          budget: 1500000, 
+          spent: 1480000, 
+          status: 'completed',
+          comments: [],
+          photos: []
+        },
+        { 
+          id: 's8', 
+          name: 'Кровля', 
+          budget: 1300000, 
+          spent: 1270000, 
+          status: 'completed',
+          comments: [],
+          photos: []
+        },
       ]
     }
   ]);
@@ -422,8 +519,109 @@ const Index = () => {
                                     <Badge variant="outline" className={getStatusColor(stage.status)}>
                                       {getStatusText(stage.status)}
                                     </Badge>
+                                    {stage.comments.length > 0 && (
+                                      <Badge variant="secondary" className="text-xs">
+                                        <Icon name="MessageSquare" size={12} className="mr-1" />
+                                        {stage.comments.length}
+                                      </Badge>
+                                    )}
+                                    {stage.photos.length > 0 && (
+                                      <Badge variant="secondary" className="text-xs">
+                                        <Icon name="Camera" size={12} className="mr-1" />
+                                        {stage.photos.length}
+                                      </Badge>
+                                    )}
                                   </div>
-                                  <span className="text-sm font-semibold">{(stage.budget / 1000).toFixed(0)}K ₽</span>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm font-semibold">{(stage.budget / 1000).toFixed(0)}K ₽</span>
+                                    <Dialog>
+                                      <DialogTrigger asChild>
+                                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                                          <Icon name="MessageSquarePlus" size={14} />
+                                        </Button>
+                                      </DialogTrigger>
+                                      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                                        <DialogHeader>
+                                          <DialogTitle>Этап: {stage.name}</DialogTitle>
+                                          <DialogDescription>Комментарии и фото работ</DialogDescription>
+                                        </DialogHeader>
+                                        
+                                        <div className="space-y-6 py-4">
+                                          <div className="space-y-3">
+                                            <div className="flex items-center justify-between">
+                                              <h4 className="font-semibold flex items-center gap-2">
+                                                <Icon name="MessageSquare" size={16} />
+                                                Комментарии
+                                              </h4>
+                                            </div>
+                                            
+                                            <div className="space-y-2">
+                                              {stage.comments.map((comment) => (
+                                                <div key={comment.id} className="p-3 rounded-lg bg-muted/50 border">
+                                                  <div className="flex items-start justify-between mb-1">
+                                                    <span className="font-medium text-sm">{comment.author}</span>
+                                                    <span className="text-xs text-muted-foreground">{new Date(comment.date).toLocaleDateString('ru')}</span>
+                                                  </div>
+                                                  <p className="text-sm">{comment.text}</p>
+                                                </div>
+                                              ))}
+                                              {stage.comments.length === 0 && (
+                                                <p className="text-sm text-muted-foreground text-center py-4">Комментариев пока нет</p>
+                                              )}
+                                            </div>
+
+                                            <div className="space-y-2">
+                                              <Label htmlFor={`stage-comment-${stage.id}`}>Добавить комментарий</Label>
+                                              <Textarea id={`stage-comment-${stage.id}`} placeholder="Ваш комментарий..." />
+                                              <Button size="sm" className="w-full">
+                                                <Icon name="Send" size={14} className="mr-2" />
+                                                Добавить комментарий
+                                              </Button>
+                                            </div>
+                                          </div>
+
+                                          <div className="border-t pt-4 space-y-3">
+                                            <div className="flex items-center justify-between">
+                                              <h4 className="font-semibold flex items-center gap-2">
+                                                <Icon name="Camera" size={16} />
+                                                Фото работ
+                                              </h4>
+                                            </div>
+                                            
+                                            <div className="grid grid-cols-2 gap-3">
+                                              {stage.photos.map((photo) => (
+                                                <div key={photo.id} className="relative group rounded-lg overflow-hidden border">
+                                                  <img src={photo.url} alt={photo.description} className="w-full h-40 object-cover" />
+                                                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
+                                                    <div className="text-white text-xs">
+                                                      <p className="font-medium">{photo.description}</p>
+                                                      <p className="text-white/70">{new Date(photo.date).toLocaleDateString('ru')}</p>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                              ))}
+                                              {stage.photos.length === 0 && (
+                                                <div className="col-span-2 text-center py-8 text-muted-foreground">
+                                                  <Icon name="Image" size={32} className="mx-auto mb-2 opacity-50" />
+                                                  <p className="text-sm">Фото пока не загружены</p>
+                                                </div>
+                                              )}
+                                            </div>
+
+                                            <div className="space-y-2">
+                                              <Label htmlFor={`stage-photo-${stage.id}`}>Загрузить фото</Label>
+                                              <Input id={`stage-photo-${stage.id}`} type="file" accept="image/*" multiple />
+                                              <Input placeholder="Описание фото (опционально)" />
+                                              <Button size="sm" className="w-full">
+                                                <Icon name="Upload" size={14} className="mr-2" />
+                                                Загрузить фото
+                                              </Button>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </DialogContent>
+                                    </Dialog>
+                                  </div>
                                 </div>
                                 <Progress value={(stage.spent / stage.budget) * 100} className="h-1.5" />
                                 <div className="flex justify-between text-xs text-muted-foreground mt-1">
@@ -435,11 +633,127 @@ const Index = () => {
                           </div>
                         </div>
 
+                        {(project.comments.length > 0 || project.photos.length > 0) && (
+                          <div className="mt-4 pt-4 border-t space-y-3">
+                            {project.comments.length > 0 && (
+                              <div className="space-y-2">
+                                <h5 className="text-sm font-semibold flex items-center gap-2">
+                                  <Icon name="MessageSquare" size={14} />
+                                  Комментарии по объекту
+                                </h5>
+                                {project.comments.slice(0, 2).map((comment) => (
+                                  <div key={comment.id} className="p-2 rounded bg-muted/50 text-sm">
+                                    <div className="flex items-center justify-between mb-1">
+                                      <span className="font-medium text-xs">{comment.author}</span>
+                                      <span className="text-xs text-muted-foreground">{new Date(comment.date).toLocaleDateString('ru')}</span>
+                                    </div>
+                                    <p className="text-xs">{comment.text}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            
+                            {project.photos.length > 0 && (
+                              <div className="space-y-2">
+                                <h5 className="text-sm font-semibold flex items-center gap-2">
+                                  <Icon name="Camera" size={14} />
+                                  Фото объекта
+                                </h5>
+                                <div className="flex gap-2 overflow-x-auto">
+                                  {project.photos.slice(0, 4).map((photo) => (
+                                    <img key={photo.id} src={photo.url} alt={photo.description} className="w-20 h-20 rounded object-cover" />
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
                         <div className="flex gap-2 mt-4 pt-4 border-t">
-                          <Button variant="outline" size="sm" className="flex-1">
-                            <Icon name="Eye" size={14} className="mr-1" />
-                            Подробнее
-                          </Button>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm" className="flex-1">
+                                <Icon name="MessageSquarePlus" size={14} className="mr-1" />
+                                Комментарии
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                              <DialogHeader>
+                                <DialogTitle>{project.address}</DialogTitle>
+                                <DialogDescription>Комментарии и фото объекта</DialogDescription>
+                              </DialogHeader>
+                              
+                              <div className="space-y-6 py-4">
+                                <div className="space-y-3">
+                                  <h4 className="font-semibold flex items-center gap-2">
+                                    <Icon name="MessageSquare" size={16} />
+                                    Комментарии по объекту
+                                  </h4>
+                                  
+                                  <div className="space-y-2">
+                                    {project.comments.map((comment) => (
+                                      <div key={comment.id} className="p-3 rounded-lg bg-muted/50 border">
+                                        <div className="flex items-start justify-between mb-1">
+                                          <span className="font-medium text-sm">{comment.author}</span>
+                                          <span className="text-xs text-muted-foreground">{new Date(comment.date).toLocaleDateString('ru')}</span>
+                                        </div>
+                                        <p className="text-sm">{comment.text}</p>
+                                      </div>
+                                    ))}
+                                    {project.comments.length === 0 && (
+                                      <p className="text-sm text-muted-foreground text-center py-4">Комментариев пока нет</p>
+                                    )}
+                                  </div>
+
+                                  <div className="space-y-2">
+                                    <Label htmlFor={`project-comment-${project.id}`}>Добавить комментарий</Label>
+                                    <Textarea id={`project-comment-${project.id}`} placeholder="Комментарий по объекту..." />
+                                    <Button size="sm" className="w-full">
+                                      <Icon name="Send" size={14} className="mr-2" />
+                                      Добавить комментарий
+                                    </Button>
+                                  </div>
+                                </div>
+
+                                <div className="border-t pt-4 space-y-3">
+                                  <h4 className="font-semibold flex items-center gap-2">
+                                    <Icon name="Camera" size={16} />
+                                    Фото объекта
+                                  </h4>
+                                  
+                                  <div className="grid grid-cols-3 gap-3">
+                                    {project.photos.map((photo) => (
+                                      <div key={photo.id} className="relative group rounded-lg overflow-hidden border">
+                                        <img src={photo.url} alt={photo.description} className="w-full h-32 object-cover" />
+                                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
+                                          <div className="text-white text-xs">
+                                            <p className="font-medium">{photo.description}</p>
+                                            <p className="text-white/70">{new Date(photo.date).toLocaleDateString('ru')}</p>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ))}
+                                    {project.photos.length === 0 && (
+                                      <div className="col-span-3 text-center py-8 text-muted-foreground">
+                                        <Icon name="Image" size={32} className="mx-auto mb-2 opacity-50" />
+                                        <p className="text-sm">Фото объекта пока не загружены</p>
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  <div className="space-y-2">
+                                    <Label htmlFor={`project-photo-${project.id}`}>Загрузить фото объекта</Label>
+                                    <Input id={`project-photo-${project.id}`} type="file" accept="image/*" multiple />
+                                    <Input placeholder="Описание фото (опционально)" />
+                                    <Button size="sm" className="w-full">
+                                      <Icon name="Upload" size={14} className="mr-2" />
+                                      Загрузить фото
+                                    </Button>
+                                  </div>
+                                </div>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
                           <Button variant="outline" size="sm" className="flex-1">
                             <Icon name="FileText" size={14} className="mr-1" />
                             Отчёт
